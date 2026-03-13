@@ -13,9 +13,13 @@ cards = soup.select(".eventCard")
 events = []
 
 for card in cards:
-    title = card.select_one(".eventCard__name").text.strip()
-    date = card.select_one(".eventCard__date").text.strip()
-    link = card.select_one("a")["href"]
+    title_tag = card.select_one(".eventCard__name")
+    date_tag = card.select_one(".eventCard__date")
+    link_tag = card.select_one("a")
+
+    title = title_tag.text.strip() if title_tag else "タイトル不明"
+    date = date_tag.text.strip() if date_tag else "日付不明"
+    link = link_tag["href"] if link_tag else ""
 
     event_text = f"{title} ({date})\n{link}"
     events.append(event_text)
