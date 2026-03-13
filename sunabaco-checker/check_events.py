@@ -8,10 +8,20 @@ url = "https://sunabaco.com/event/"
 response = requests.get(url)
 soup = BeautifulSoup(response.text, "html.parser")
 
-titles = [t.text.strip() for t in soup.select(".eventCard__name")]
+cards = soup.select(".eventCard")
+
+events = []
+
+for card in cards:
+    title = card.select_one(".eventCard__name").text.strip()
+    date = card.select_one(".eventCard__date").text.strip()
+    link = card.select_one("a")["href"]
+
+    event_text = f"{title} ({date})\n{link}"
+    events.append(event_text)
 
 # 重複削除
-titles = list(dict.fromkeys(titles))
+events = list(dict.fromkeys(events))
 
 # events.json を読み込む
 try:
@@ -21,7 +31,7 @@ except:
     old_events = []
 
 # 新イベント
-new_events = [t for t in titles if t not in old_events]
+new_events = [e for e in events if e not in old_events]
 
 print("新イベント:")
 for e in new_events:
@@ -38,4 +48,4 @@ for event in new_events:
 
 # events.json 更新
 with open("sunabaco-checker/events.json", "w") as f:
-    json.dump(titles, f)
+    json.dump(events, f)
