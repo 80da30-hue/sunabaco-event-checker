@@ -35,6 +35,50 @@ for event in new_events:
         "text": f"🎉 新しいSUNABACOイベントがあります！\n{event}\nhttps://sunabaco.com/event/"
     }
     requests.post(webhook_url, json=message)
+name: Check SUNABACO Events
+
+on:
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - run: pip install requests beautifulsoup4
+
+      - run: python sunabaco-checker/check_events.py
+  env:
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Commit updated events.json
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add sunabaco-checker/events.json
+          git commit -m "Update events.json" || echo "No changes"
+          git push
+
+          # Slackテスト通知
+webhook_url = os.environ["SLACK_WEBHOOK_URL"]
+
+test_message = {
+    "text": "SUNABACOイベントチェッカーのテスト通知です"
+}
+
+requests.post(webhook_url, json=test_message)
+
 
 # events.json 更新
 with open("sunabaco-checker/events.json", "w") as f:
