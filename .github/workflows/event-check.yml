@@ -22,6 +22,8 @@ jobs:
       - run: pip install requests beautifulsoup4
 
       - run: python sunabaco-checker/check_events.py
+  env:
+    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Commit updated events.json
         run: |
